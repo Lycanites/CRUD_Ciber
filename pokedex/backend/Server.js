@@ -91,6 +91,19 @@ app.post(
   }
 );
 
+app.delete("/pokemon/:id", (req, res) => {
+  const pokemonId = req.params.id;
+
+  const query = "DELETE FROM pokemon WHERE id = ?";
+  db.query(query, [pokemonId], (err, result) => {
+    if (err) {
+      console.error("Error al eliminar el Pokémon:", err);
+      return res.status(500).json({ error: "Error al eliminar Pokémon" });
+    }
+    res.status(200).json({ message: "Pokémon eliminado con éxito" });
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);

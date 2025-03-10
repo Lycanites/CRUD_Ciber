@@ -11,7 +11,29 @@ const PokemonCRUD = () => {
     speed: "",
     image: "",
   });
+
   const [pokemonList, setPokemonList] = useState([]);
+
+  const pokemonTypes = [
+    "Normal",
+    "Fuego",
+    "Agua",
+    "Planta",
+    "Eléctrico",
+    "Hielo",
+    "Lucha",
+    "Veneno",
+    "Tierra",
+    "Volador",
+    "Psíquico",
+    "Bicho",
+    "Roca",
+    "Fantasma",
+    "Dragón",
+    "Siniestro",
+    "Acero",
+    "Hada",
+  ];
 
   useEffect(() => {
     fetch("http://localhost:5000/pokemon")
@@ -26,7 +48,6 @@ const PokemonCRUD = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     fetch("http://localhost:5000/pokemon", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -34,10 +55,20 @@ const PokemonCRUD = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Pokémon registrado:", data);
         setPokemonList([...pokemonList, data]);
       })
       .catch((err) => console.error("Error al registrar Pokémon:", err));
+  };
+
+  const handleDelete = (id) => {
+    fetch(`http://localhost:5000/pokemon/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setPokemonList(pokemonList.filter((pokemon) => pokemon.id !== id));
+      })
+      .catch((err) => console.error("Error al eliminar Pokémon:", err));
   };
 
   return (
@@ -54,14 +85,21 @@ const PokemonCRUD = () => {
             onChange={handleChange}
             required
           />
-          <input
-            type="text"
+
+          <select
             name="type"
-            placeholder="Tipo"
             className="p-2 border border-blue-500 rounded"
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Selecciona un tipo</option>
+            {pokemonTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+
           <input
             type="text"
             name="ability"
@@ -110,6 +148,7 @@ const PokemonCRUD = () => {
             onChange={handleChange}
             required
           />
+
           <button
             type="submit"
             className="col-span-2 bg-blue-500 text-white p-2 rounded"
@@ -118,26 +157,35 @@ const PokemonCRUD = () => {
           </button>
         </form>
       </div>
-      <div className="mt-6 max-w-4xl w-full">
-        <h2 className="text-xl font-bold text-center mb-4">Lista de Pokémon</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {pokemonList.map((p) => (
+
+      <div className="w-full max-w-4xl mx-auto mt-8">
+        <div className="pokemon-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+          {pokemonList.map((pokemon) => (
             <div
-              key={p.id}
-              className="bg-white shadow-md p-4 rounded-lg text-center"
+              key={pokemon.id}
+              className="pokemon-card bg-white shadow-lg rounded-lg p-4 hover:scale-105 transition-all duration-300 w-full sm:w-[300px]"
             >
               <img
-                src={p.image}
-                alt={p.name}
-                className="w-24 h-24 mx-auto mb-2"
+                src={pokemon.image}
+                alt={pokemon.name}
+                className="w-full h-40 object-contain rounded-t-lg"
               />
-              <h3 className="font-bold">{p.name}</h3>
-              <p>Tipo: {p.type}</p>
-              <p>Habilidad: {p.ability}</p>
-              <p>HP: {p.hp}</p>
-              <p>Ataque: {p.attack}</p>
-              <p>Defensa: {p.defense}</p>
-              <p>Velocidad: {p.speed}</p>
+              <h2 className="text-lg font-bold mt-2 text-center">
+                {pokemon.name}
+              </h2>
+              <p className="text-gray-600">Tipo: {pokemon.type}</p>
+              <p className="text-gray-600">Habilidad: {pokemon.ability}</p>
+              <p className="text-gray-600">HP: {pokemon.hp}</p>
+              <p className="text-gray-600">Ataque: {pokemon.attack}</p>
+              <p className="text-gray-600">Defensa: {pokemon.defense}</p>
+              <p className="text-gray-600">Velocidad: {pokemon.speed}</p>
+
+              <button
+                onClick={() => handleDelete(pokemon.id)}
+                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 w-full"
+              >
+                Eliminar
+              </button>
             </div>
           ))}
         </div>

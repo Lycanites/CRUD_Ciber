@@ -39,6 +39,22 @@ app.get("/pokemon", (req, res) => {
   });
 });
 
+// Obtener un Pokémon por su ID
+app.get("/pokemon/:id", (req, res) => {
+  const pokemonId = req.params.id;
+  const query = "SELECT * FROM pokemon WHERE id = ?";
+
+  db.query(query, [pokemonId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Pokémon no encontrado" });
+    }
+    res.json(results[0]); // Devuelve el Pokémon encontrado
+  });
+});
+
 // Registrar un nuevo Pokémon con validaciones
 app.post(
   "/pokemon",
@@ -64,13 +80,23 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, type, ability, hp, attack, defense, speed, image } = req.body;
+    const {
+      name,
+      type,
+      tipo_secundario,
+      ability,
+      hp,
+      attack,
+      defense,
+      speed,
+      image,
+    } = req.body;
     const query =
-      "INSERT INTO pokemon (name, type, ability, hp, attack, defense, speed, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO pokemon (name, type, tipo_secundario, ability, hp, attack, defense, speed, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     db.query(
       query,
-      [name, type, ability, hp, attack, defense, speed, image],
+      [name, type, tipo_secundario, ability, hp, attack, defense, speed, image],
       (err, result) => {
         if (err) {
           return res.status(500).json({ error: err.message });
@@ -79,6 +105,7 @@ app.post(
           id: result.insertId,
           name,
           type,
+          tipo_secundario,
           ability,
           hp,
           attack,
@@ -91,6 +118,66 @@ app.post(
   }
 );
 
+// Actualizar un Pokémon por ID
+app.put("/pokemon/:id", (req, res) => {
+  const pokemonId = req.params.id;
+  const {
+    name,
+    type,
+    tipo_secundario,
+    ability,
+    hp,
+    attack,
+    defense,
+    speed,
+    image,
+  } = req.body;
+
+  const query = `
+    UPDATE pokemon SET name = ?, type = ?, tipo_secundario = ?, ability = ?, hp = ?, attack = ?, defense = ?, speed = ?, image = ?
+    WHERE id = ?
+  `;
+
+  db.query(
+    query,
+    [
+      name,
+      type,
+      tipo_secundario,
+      ability,
+      hp,
+      attack,
+      defense,
+      speed,
+      image,
+      pokemonId,
+    ],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "Pokémon no encontrado para actualizar" });
+      }
+      res.json({
+        id: pokemonId,
+        name,
+        type,
+        tipo_secundario,
+        ability,
+        hp,
+        attack,
+        defense,
+        speed,
+        image,
+      });
+    }
+  );
+});
+
+// Eliminar un Pokémon por ID
 app.delete("/pokemon/:id", (req, res) => {
   const pokemonId = req.params.id;
 

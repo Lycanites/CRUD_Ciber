@@ -170,7 +170,7 @@ const PokemonCRUD = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[url('../public/Pokeball.png')] bg-no-repeat bg-center bg-cover p-6 w-full h-screen">
       <img src="/IMGmain.png" alt="Logo" className="w-128 mb-4 mx-auto" />
       <div className="max-w-4xl w-full bg-white shadow-md rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-4 text-center">CRUD de Pokémon</h1>
